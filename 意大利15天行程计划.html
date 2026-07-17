@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>意大利中北部自由行 · 15天行程计划</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 68px; }
+body {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  color: #2B2826;
+  background: #F7F5F0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Typography ===== */
+h1, h2, h3, .h-like { font-family: 'Noto Sans SC', system-ui, sans-serif; font-weight: 600; color: #1F1C1A; }
+h1 { font-size: 2.75rem; line-height: 1.15; letter-spacing: -0.01em; font-weight: 700; }
+h2 {
+  font-size: 1.75rem; line-height: 1.25; margin-top: 3rem; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+h3 { font-size: 1.2rem; line-height: 1.3; margin-bottom: 0.5rem; }
+@media (max-width: 600px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.35rem; margin-top: 2rem; }
+}
+
+/* ===== Layout ===== */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+@media (max-width: 600px) {
+  .container { padding: 0 16px; }
+}
+
+/* ===== Sticky Route Bar ===== */
+.route-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(61, 122, 158, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0 24px;
+  font-size: 0.8125rem;
+  transition: box-shadow 0.3s;
+}
+.route-bar.scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+.route-bar-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 54px; overflow-x: auto; gap: 2px;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.route-bar-inner::-webkit-scrollbar { display: none; }
+.route-city {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,0.6); text-decoration: none;
+  white-space: nowrap; padding: 4px 8px; border-radius: 20px;
+  transition: all 0.35s ease; font-weight: 600;
+  font-size: 0.8125rem; letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.route-city:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.1); }
+.route-city.active { color: #fff; background: rgba(255,255,255,0.15); }
+.route-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+  transition: transform 0.35s ease;
+}
+.route-city.active .route-dot { transform: scale(1.5); }
+.route-arrow {
+  color: rgba(255,255,255,0.3); font-size: 0.65rem;
+  flex-shrink: 0;
+}
+.route-city:last-child .route-arrow { display: none; }
+
+/* ===== Hero ===== */
+.hero {
+  text-align: center;
+  padding: 4rem 24px 3rem;
+  background: linear-gradient(135deg, #F7F5F0 0%, #E8F0F5 100%);
+  border-bottom: 1px solid #E5DDD4;
+}
+.hero-inner { max-width: 720px; margin: 0 auto; }
+.hero h1 { margin-bottom: 0.5rem; }
+.hero-subtitle {
+  font-size: 1.1rem; color: #5A544E;
+  margin-bottom: 0.75rem; font-weight: 400;
+}
+.hero-route {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap; margin: 1.25rem 0 1rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 1rem; color: #3D7A9E;
+}
+.hero-route span { padding: 2px 0; position: relative; }
+.hero-route .arrow { color: #C5B8AB; font-size: 0.7rem; font-family: 'Noto Sans SC', sans-serif; }
+.hero-meta {
+  display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+  font-size: 0.9rem; color: #7A746E;
+}
+.hero-meta span { display: flex; align-items: center; gap: 6px; }
+.hero-meta .icon { font-size: 1rem; }
+
+/* ===== Section Common ===== */
+section { padding: 2rem 0; }
+.section-label {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em;
+  color: #3D7A9E; font-weight: 700; margin-bottom: 0.25rem;
+}
+
+/* ===== Priority Legend ===== */
+.legend {
+  display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+  padding: 1.25rem 0;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.875rem; color: #5A544E;
+}
+.prio-badge {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.prio-3 { background: #F8EDDA; color: #B8862A; }
+.prio-2 { background: #E8F0F5; color: #3D7A9E; }
+.prio-1 { background: #F0EDEA; color: #8A847E; }
+
+/* ===== City Filter / Navigation ===== */
+.city-nav {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.city-nav a {
+  text-decoration: none;
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 0.875rem; font-weight: 600;
+  background: #EEEAE4; color: #5A544E;
+  transition: all 0.25s ease;
+}
+.city-nav a:hover { background: #3D7A9E; color: #fff; }
+
+/* ===== City Section ===== */
+.city-section {
+  margin-top: 2.5rem;
+}
+.city-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 1rem;
+}
+.city-header h3 {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  font-size: 1.35rem; margin-bottom: 0;
+}
+.city-dates {
+  font-size: 0.85rem; color: #7A746E; font-weight: 400;
+}
+
+/* ===== Sights Table ===== */
+.sights-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.sights-table th {
+  text-align: left; padding: 10px 12px;
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #7A746E; font-weight: 700;
+  border-bottom: 2px solid #E5DDD4;
+}
+.sights-table td {
+  padding: 10px 12px; border-bottom: 1px solid #EDE8E2;
+  vertical-align: top;
+}
+.sights-table tr:hover td { background: #FAF8F5; }
+.sights-table .col-prio { width: 80px; }
+.sights-table .col-type { width: 60px; color: #7A746E; font-size: 0.8rem; }
+.sights-name { font-weight: 600; color: #2B2826; }
+.sights-notes { display: block; font-size: 0.8rem; color: #7A746E; font-weight: 400; margin-top: 2px; }
+.urgent-dot { color: #B85C4A; font-weight: 700; cursor: help; }
+
+/* ===== City Maps ===== */
+.city-map { height: 320px; border-radius: 0; margin-top: 1rem; border-top: 1px solid #EDE8E2; border-bottom: 1px solid #EDE8E2; z-index: 0; }
+.city-map .leaflet-tile-pane { filter: saturate(1) hue-rotate(0deg); }
+.city-map .leaflet-control-attribution { font-size: 0.6rem; opacity: 0.6; }
+.map-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 0.75rem; padding: 6px 16px; border-radius: 20px;
+  background: #E8F0F5; color: #3D7A9E; cursor: pointer;
+  font-size: 0.82rem; font-weight: 600; border: none;
+  transition: all 0.25s ease;
+}
+.map-toggle:hover { background: #3D7A9E; color: #fff; }
+.map-toggle .icon { font-size: 0.9rem; transition: transform 0.3s ease; }
+.map-toggle.open .icon { transform: rotate(180deg); }
+.city-map-wrap { transition: max-height 0.4s ease, opacity 0.35s ease; max-height: 0; opacity: 0; overflow: hidden; }
+.city-map-wrap.open { max-height: 380px; opacity: 1; margin-left: -24px; margin-right: -24px; }
+@media (max-width: 600px) {
+  .city-map { height: 200px; }
+  .city-map-wrap.open { max-height: 260px; margin-left: -16px; margin-right: -16px; }
+}
+
+/* ===== Daily Schedule ===== */
+.schedule-grid {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.day-card {
+  background: #fff; border-radius: 12px;
+  border: 1px solid #EDE8E2;
+  overflow: hidden; transition: all 0.25s ease;
+}
+.day-card:hover {
+  border-color: #D5CCC2;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.day-card-header {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px;
+  padding: 14px 20px;
+  background: #FAF8F5;
+  cursor: pointer;
+  border-bottom: 1px solid #EDE8E2;
+}
+.day-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 8px;
+  background: #3D7A9E; color: #fff;
+  font-weight: 700; font-size: 0.85rem; font-family: 'Noto Sans SC', sans-serif;
+  flex-shrink: 0;
+}
+.day-date {
+  font-size: 0.85rem; color: #7A746E; white-space: nowrap;
+}
+.day-city {
+  font-size: 0.9rem; font-weight: 600; color: #3D7A9E;
+}
+.transport-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: 20px;
+  background: #F0EDEA; color: #5A544E;
+  font-size: 0.75rem; font-weight: 600;
+}
+
+.day-card-body {
+  padding: 16px 20px;
+}
+.day-card-body ul {
+  list-style: none; padding: 0;
+}
+.day-card-body li {
+  position: relative; padding: 4px 0 4px 1.25em;
+  color: #3D3A36; font-size: 0.9rem;
+}
+.day-card-body li::before {
+  content: '·'; position: absolute; left: 0;
+  color: #C5B8AB; font-weight: 700;
+}
+.day-card-body .highlight-item {
+  padding: 4px 0 4px 1.25em;
+}
+.day-card-body .highlight-item strong {
+  color: #C58B3D;
+}
+.day-card-body .urgent-note {
+  display: inline-block; margin-top: 4px;
+  padding: 2px 10px; border-radius: 20px;
+  background: #FEF0EC; color: #B85C4A;
+  font-size: 0.78rem; font-weight: 600;
+}
+.legacy-list { margin-top: 6px; }
+
+/* ===== Overview Table ===== */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 560px;
+}
+.data-table th {
+  background: #3D7A9E; color: #fff;
+  padding: 10px 12px; text-align: left;
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.data-table th:first-child { border-radius: 8px 0 0 0; }
+.data-table th:last-child { border-radius: 0 8px 0 0; }
+.data-table td {
+  padding: 10px 12px; border-bottom: 1px solid #EDE8E2;
+  vertical-align: top;
+}
+.data-table tr:nth-child(even) td { background: #FAF8F5; }
+.data-table tr:hover td { background: #F0EDEA; }
+
+/* ===== Budget ===== */
+.budget-cat {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  font-size: 1.1rem; font-weight: 600; color: #3D7A9E;
+  margin: 1.5rem 0 0.75rem;
+}
+.budget-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px; margin: 1rem 0;
+}
+.budget-card {
+  background: #fff; border-radius: 10px;
+  border: 1px solid #EDE8E2;
+  padding: 16px;
+}
+.budget-card .label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #7A746E; font-weight: 700;
+}
+.budget-card .amount {
+  font-size: 1.3rem; font-weight: 700; color: #2B2826;
+  margin-top: 4px;
+}
+.budget-card .note {
+  font-size: 0.78rem; color: #7A746E; margin-top: 2px;
+}
+
+/* ===== Tips ===== */
+.tips-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+.tip-card {
+  background: #fff; border-radius: 10px;
+  border: 1px solid #EDE8E2;
+  padding: 18px;
+}
+.tip-card .tip-num {
+  display: inline-block;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #E8F0F5; color: #3D7A9E;
+  font-weight: 700; font-size: 0.8rem;
+  text-align: center; line-height: 28px;
+  margin-bottom: 8px;
+}
+.tip-card h4 { font-size: 0.95rem; color: #2B2826; margin-bottom: 4px; }
+.tip-card p { font-size: 0.85rem; color: #5A544E; line-height: 1.55; }
+
+/* ===== Urgent Tickets Section ===== */
+.ticket-urgency {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 1rem 0;
+}
+.ticket-tag {
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 600;
+}
+.ticket-tag.red { background: #FEF0EC; color: #B85C4A; }
+.ticket-tag.yellow { background: #F8EDDA; color: #B8862A; }
+.ticket-tag.blue { background: #E8F0F5; color: #3D7A9E; }
+
+/* ===== Footer ===== */
+.page-footer {
+  text-align: center;
+  padding: 3rem 24px;
+  color: #7A746E; font-size: 0.85rem;
+  border-top: 1px solid #EDE8E2;
+  margin-top: 2rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .day-card-header {
+    padding: 12px 14px;
+    gap: 4px 10px;
+  }
+  .day-card-body { padding: 12px 14px; }
+  .day-num { width: 34px; height: 34px; font-size: 0.75rem; }
+  .hero { padding: 2.5rem 16px 2rem; }
+  .route-bar { padding: 0 12px; }
+  .route-bar-inner { height: 46px; gap: 0; }
+  .route-city { font-size: 0.7rem; padding: 3px 5px; }
+  .route-dot { width: 6px; height: 6px; }
+  .route-arrow { font-size: 0.5rem; }
+  .sights-table th, .sights-table td { padding: 8px 8px; }
+  .sights-table .col-type { display: none; }
+  .budget-summary { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Print ===== */
+@media print {
+  .route-bar { display: none; }
+  body { background: #fff; color: #000; }
+  .day-card { break-inside: avoid; border: 1px solid #ccc; }
+  .day-card-header { background: #f5f5f5; }
+  .data-table th { background: #555; }
+  .hero { background: none; border-bottom: 2px solid #000; }
+  .page-footer { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Sticky Route Bar ===== -->
+<nav class="route-bar" id="routeBar">
+  <div class="route-bar-inner">
+    <a href="#roma" class="route-city" data-city="roma">
+      <span class="route-dot"></span>罗马
+      <span class="route-arrow">▸</span>
+    </a>
+    <a href="#firenze" class="route-city" data-city="firenze">
+      <span class="route-dot"></span>佛罗伦萨
+      <span class="route-arrow">▸</span>
+    </a>
+    <a href="#venezia" class="route-city" data-city="venezia">
+      <span class="route-dot"></span>威尼斯
+      <span class="route-arrow">▸</span>
+    </a>
+    <a href="#dolomiti" class="route-city" data-city="dolomiti">
+      <span class="route-dot"></span>多洛米蒂
+      <span class="route-arrow">▸</span>
+    </a>
+    <a href="#milano" class="route-city" data-city="milano">
+      <span class="route-dot"></span>米兰
+      <span class="route-arrow">▸</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1>意大利中北部自由行</h1>
+    <p class="hero-subtitle">15 天 · 从永恒之城到阿尔卑斯</p>
+    <div class="hero-route">
+      <span>罗马</span><span class="arrow">→</span>
+      <span>佛罗伦萨</span><span class="arrow">→</span>
+      <span>威尼斯</span><span class="arrow">→</span>
+      <span>多洛米蒂</span><span class="arrow">→</span>
+      <span>米兰</span>
+    </div>
+    <div class="hero-meta">
+      <span><span class="icon">📅</span> 9月13日 — 9月27日</span>
+      <span><span class="icon">🚄</span> 高铁 + 区域火车 + 山区大巴 + 缆车</span>
+      <span><span class="icon">✈️</span> 9/27 08:45 到北京</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ===== Priority Legend ===== -->
+<div class="legend">
+  <span class="legend-item"><span class="prio-badge prio-3">⭐⭐⭐ 必去</span> 第一次去意大利不看等于白来</span>
+  <span class="legend-item"><span class="prio-badge prio-2">⭐⭐ 推荐</span> 有时间优先去，时间紧可砍</span>
+  <span class="legend-item"><span class="prio-badge prio-1">⭐ 可选</span> 视体力/天气/预算决定</span>
+</div>
+
+<!-- ===== City Navigation ===== -->
+<div class="city-nav">
+  <a href="#roma">🏛️ 罗马 + 梵蒂冈</a>
+  <a href="#firenze">🏛️ 佛罗伦萨</a>
+  <a href="#venezia">🏛️ 威尼斯</a>
+  <a href="#dolomiti">🏛️ 多洛米蒂</a>
+  <a href="#milano">🏛️ 米兰</a>
+  <a href="#daily">📅 每日行程</a>
+  <a href="#budget">💰 预算</a>
+  <a href="#tips">💡 实用提示</a>
+</div>
+
+
+<section id="roma">
+  <span class="section-label">City 01</span>
+  <h2>🏛️ 罗马 + 梵蒂冈</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">D1–D5 · 4 晚住宿 · 历史中心区 / Termini 附近</p>
+  <div class="city-section">
+    <table class="sights-table">
+      <thead>
+        <tr><th class="col-prio">优先级</th><th>地点</th><th class="col-type">类型</th><th>必看亮点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">罗马斗兽场</span><span class="sights-notes">Colosseum</span></td>
+          <td class="col-type">古迹</td>
+          <td>古罗马工程巅峰。<span class="urgent-dot" title="必须提前预约">🔴 必须预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">古罗马广场 + 帕拉蒂尼山</span><span class="sights-notes">Roman Forum + Palatine Hill</span></td>
+          <td class="col-type">古迹</td>
+          <td>斗兽场联票，神庙、元老院、凯旋门遗址群</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">万神殿</span><span class="sights-notes">Pantheon</span></td>
+          <td class="col-type">建筑</td>
+          <td>两千年前混凝土穹顶，采光孔 9m，拉斐尔墓</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">特雷维喷泉 / 许愿池</span><span class="sights-notes">Trevi Fountain</span></td>
+          <td class="col-type">雕塑</td>
+          <td>巴洛克巨作，背对投币</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">梵蒂冈博物馆</span><span class="sights-notes">Vatican Museums</span></td>
+          <td class="col-type">博物馆</td>
+          <td>西斯廷礼拜堂《创世纪》《最后的审判》；拉斐尔画室《雅典学院》。<span class="urgent-dot" title="必须官网预约">🔴 必须预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">圣彼得大教堂 + 登顶</span><span class="sights-notes">St. Peter's Basilica</span></td>
+          <td class="col-type">教堂</td>
+          <td>米开朗基罗《哀悼基督》、贝尼尼青铜华盖。<span class="urgent-dot" title="登顶建议提前买票">🟡 建议提前购票</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">西班牙广场</span><span class="sights-notes">Piazza di Spagna</span></td>
+          <td class="col-type">阶梯</td>
+          <td>《罗马假日》取景地</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">圣天使堡 + 圣天使桥</span><span class="sights-notes">Castel Sant'Angelo</span></td>
+          <td class="col-type">城堡</td>
+          <td>台伯河畔，贝尼尼雕像</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">博尔盖塞美术馆</span><span class="sights-notes">Galleria Borghese</span></td>
+          <td class="col-type">博物馆</td>
+          <td>贝尔尼尼《阿波罗与达芙妮》《劫掠普罗塞皮娜》、卡拉瓦乔《捧果篮男孩》。<span class="urgent-dot" title="必须提前预约，每场限2h">🔴 必须预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-1">⭐</span></td>
+          <td><span class="sights-name">威尼斯广场</span><span class="sights-notes">Piazza Venezia</span></td>
+          <td class="col-type">建筑</td>
+          <td>白色大理石"结婚蛋糕"，免费外观</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="schedule-grid">
+
+      <!-- D1 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D1</span>
+          <span class="day-date">9/13 · 周日</span>
+          <span class="day-city">北京 ➞ 罗马</span>
+          <span class="transport-tag">✈️ 转机</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>TK197</strong> 北京 PEK 07:20 → 伊斯坦布尔 IST 12:45</li>
+            <li><strong>TK1863</strong> 伊斯坦布尔 IST 16:45 → 罗马 FCO 18:25</li>
+            <li>🚄 Leonardo Express 至 Roma Termini（约 32 分钟），19:00–19:30 到市区</li>
+            <li>🏨 历史中心区或 Termini 附近</li>
+            <li>🌙 周边散步、晚餐</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D2 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D2</span>
+          <span class="day-date">9/14 · 周一</span>
+          <span class="day-city">罗马</span>
+          <span class="transport-tag">🚶 步行 + 地铁</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item"><strong>罗马斗兽场</strong> (Colosseum) — <span class="urgent-dot">🔴 必须预约</span> 选早场，<strong>8.13 起售</strong></span></li>
+            <li><strong>古罗马广场</strong> (Roman Forum) 与 <strong>帕拉蒂尼山</strong> (Palatine Hill) — 斗兽场联票</li>
+            <li><strong>威尼斯广场</strong> (Piazza Venezia) — 免费外观</li>
+            <li>🌅 <strong>特雷维喷泉</strong> → <strong>万神殿</strong>（免费，穹顶采光孔） → <strong>西班牙广场</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D3 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D3</span>
+          <span class="day-date">9/15 · 周二</span>
+          <span class="day-city">梵蒂冈</span>
+          <span class="transport-tag">🚇 地铁 A 线</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item"><strong>梵蒂冈博物馆</strong> (Vatican Museums) — 西斯廷礼拜堂《创世纪》《最后的审判》；拉斐尔画室《雅典学院》。 <span class="urgent-dot">🔴 必须预约</span> 建议约 08:30 早场。 <strong>9.14/16 能约到</strong></span></li>
+            <li><strong>圣彼得大教堂</strong> (St. Peter\'s Basilica) — 《哀悼基督》、贝尼尼青铜华盖。 <span class="urgent-dot">🟡 登顶建议提前买电梯票</span>（现场排队也可）</li>
+            <li><strong>圣天使堡</strong> + <strong>圣天使桥</strong> — 台伯河畔，傍晚落日</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D4 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D4</span>
+          <span class="day-date">9/16 · 周三</span>
+          <span class="day-city">罗马 · 自由探索</span>
+          <span class="transport-tag">🚶 步行</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item"><strong>博尔盖塞美术馆</strong> (Galleria Borghese) — 贝尔尼尼、卡拉瓦乔。 <span class="urgent-dot">🔴 必须预约</span> 名额极少，每场限 2h，建议约 09:00 早场。 <strong>7.26 开票</strong></span></li>
+            <li>🌆 <strong>Trastevere</strong> 街区 — 最有烟火气的老区，窄巷、藤蔓庭院、平价小馆</li>
+            <li>⛰️ 登上 Gianicolo 山丘俯瞰全城</li>
+            <li>🌙 特雷维喷泉夜景，或西班牙广场散步</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D5 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D5</span>
+          <span class="day-date">9/17 · 周四</span>
+          <span class="day-city">罗马 ➞ 佛罗伦萨</span>
+          <span class="transport-tag">🚄 高铁 1.5h</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li>上午自由活动 — 西班牙广场阶梯、或 Santa Maria Maggiore 大教堂（免费，5 世纪马赛克）</li>
+            <li><strong>12:00 前</strong> 退房，出发去 Termini</li>
+            <li>🚄 高铁至佛罗伦萨（约 1.5h），14:00–15:00 抵达</li>
+            <li>🧳 办理入住 / 寄存行李</li>
+            <li><span class="highlight-item">🌅 <strong>米开朗基罗广场</strong> — 俯瞰全城，夕阳下的红色穹顶剪影</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <button class="map-toggle" onclick="toggleMap(this,'map-roma')"><span class="icon">▼</span> 查看地图</button>
+    <div class="city-map-wrap" id="wrap-map-roma"><div id="map-roma" class="city-map"></div></div>
+  </div>
+</section>
+
+<section id="firenze">
+  <span class="section-label">City 02</span>
+  <h2>🏛️ 佛罗伦萨</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">D5–D7 · 2 晚住宿</p>
+  <div class="city-section">
+    <table class="sights-table">
+      <thead>
+        <tr><th class="col-prio">优先级</th><th>地点</th><th class="col-type">类型</th><th>必看亮点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">圣母百花大教堂</span><span class="sights-notes">Duomo</span></td>
+          <td class="col-type">教堂</td>
+          <td>布鲁内莱斯基红砖穹顶。<span class="urgent-dot" title="登顶建议提前购票">🟡 建议提前购票</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">乌菲兹美术馆</span><span class="sights-notes">Uffizi Gallery</span></td>
+          <td class="col-type">博物馆</td>
+          <td>波提切利《维纳斯的诞生》《春》、达芬奇《天使报喜》。<span class="urgent-dot" title="必须提前预约">🔴 必须预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">米开朗基罗广场</span><span class="sights-notes">Piazzale Michelangelo</span></td>
+          <td class="col-type">观景台</td>
+          <td>俯瞰全城日落，免费</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">学院美术馆</span><span class="sights-notes">Galleria dell'Accademia</span></td>
+          <td class="col-type">博物馆</td>
+          <td>米开朗基罗《大卫》真迹。<span class="urgent-dot" title="必须提前预约">🔴 必须预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">领主广场</span><span class="sights-notes">Piazza della Signoria</span></td>
+          <td class="col-type">广场</td>
+          <td>大卫复制品、珀尔修斯青铜像</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="schedule-grid">
+
+      <!-- D6 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D6</span>
+          <span class="day-date">9/18 · 周五</span>
+          <span class="day-city">佛罗伦萨</span>
+          <span class="transport-tag">🚶 步行</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item">上午 <strong>圣母百花大教堂</strong> (Duomo) — 登乔托钟楼 / 穹顶，参观洗礼堂\"天堂之门\"。 <span class="urgent-dot">🟡 建议提前购票</span>（可约 17–19 日）</span></li>
+            <li><span class="highlight-item">下午 <strong>乌菲兹美术馆</strong> (Uffizi) — 波提切利《维纳斯的诞生》《春》、达芬奇《天使报喜》。 <span class="urgent-dot">🔴 必须预约</span> 建议约 13:00–14:00 场次，2–3h。 【可约 17–19，约 8:30】</span></li>
+            <li>🌙 <strong>老桥</strong> (Ponte Vecchio) 漫步</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D7 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D7</span>
+          <span class="day-date">9/19 · 周六</span>
+          <span class="day-city">佛罗伦萨 ➞ 威尼斯</span>
+          <span class="transport-tag">🚄 高铁 2h</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item">上午 <strong>学院美术馆</strong> (Accademia) — 米开朗基罗《大卫》真迹。 <span class="urgent-dot">🔴 必须预约</span> 建议 08:30 开门场。【17–19，约早上】</span></li>
+            <li>退房，高铁至威尼斯（<strong>务必买到 Venezia Santa Lucia 主岛站</strong>，约 2h）</li>
+            <li>🌅 出站即搭 <strong>水上巴士</strong>，沿 <strong>大运河</strong> 看两岸水上宫殿与夕阳</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <button class="map-toggle" onclick="toggleMap(this,'map-firenze')"><span class="icon">▼</span> 查看地图</button>
+    <div class="city-map-wrap" id="wrap-map-firenze"><div id="map-firenze" class="city-map"></div></div>
+  </div>
+</section>
+
+<section id="venezia">
+  <span class="section-label">City 03</span>
+  <h2>🏛️ 威尼斯</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">D8–D9 · 2 晚住宿</p>
+  <div class="city-section">
+    <table class="sights-table">
+      <thead>
+        <tr><th class="col-prio">优先级</th><th>地点</th><th class="col-type">类型</th><th>必看亮点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">圣马可广场 + 大教堂</span><span class="sights-notes">Piazza San Marco</span></td>
+          <td class="col-type">广场/教堂</td>
+          <td>金色马赛克壁画，四匹青铜骏马</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">大运河 + 水上巴士</span><span class="sights-notes">Grand Canal</span></td>
+          <td class="col-type">水上交通</td>
+          <td>出站即乘，傍晚最佳</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">彩色岛</span><span class="sights-notes">Burano</span></td>
+          <td class="col-type">岛屿</td>
+          <td>高饱和彩色房屋</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">叹息桥 + 总督宫</span><span class="sights-notes">Bridge of Sighs + Doge's Palace</span></td>
+          <td class="col-type">桥梁/宫殿</td>
+          <td>丁托列托《天堂》。<span class="urgent-dot" title="建议预约">🟡 建议预约</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-1">⭐</span></td>
+          <td><span class="sights-name">贡多拉</span><span class="sights-notes">Gondola</span></td>
+          <td class="col-type">体验</td>
+          <td>约 €80/30min</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="schedule-grid">
+
+      <!-- D8 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D8</span>
+          <span class="day-date">9/20 · 周日</span>
+          <span class="day-city">威尼斯</span>
+          <span class="transport-tag">🚌 水上巴士 24h 通票</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><span class="highlight-item">🏝️ <strong>彩色岛</strong> (Burano) — 高饱和度彩色房屋，拍照出片</span></li>
+            <li><strong>圣马可广场</strong> 与 <strong>大教堂</strong> — 金色马赛克壁画，四匹青铜骏马</li>
+            <li><strong>叹息桥</strong> 与 <strong>总督宫</strong> — 丁托列托《天堂》。 <span class="urgent-dot">🟡 建议预约</span></li>
+            <li>🛶 <strong>贡多拉</strong> (Gondola) — 约 €80/30min</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D9 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D9</span>
+          <span class="day-date">9/21 · 周一</span>
+          <span class="day-city">威尼斯 ➞ Brixen（多洛米蒂）</span>
+          <span class="transport-tag">🚄 火车 3.5–4h</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li>威尼斯 Santa Lucia → <strong>维罗纳</strong> → <strong>Brixen</strong>（布雷萨诺内），火车约 3.5–4h</li>
+            <li>也可经 Fortezza 换乘，总时间相近</li>
+            <li>🧳 入住 Brixen</li>
+            <li>🌙 逛 <strong>Brixen 老城</strong> — 大教堂 + 11 世纪地下墓穴（罗马式壁画）、主教宫庭院。火车站步行 2 分钟即是 Plose 缆车站，可提前踩点</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="map-toggle" onclick="toggleMap(this,'map-venezia')"><span class="icon">▼</span> 查看地图</button>
+    <div class="city-map-wrap" id="wrap-map-venezia"><div id="map-venezia" class="city-map"></div></div>
+  </div>
+</section>
+
+<section id="dolomiti">
+  <span class="section-label">City 04</span>
+  <h2>🏛️ 多洛米蒂</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">D10–D12 · 以 Brixen（布雷萨诺内）为固定住宿点，3 晚</p>
+  <div class="city-section">
+    <table class="sights-table">
+      <thead>
+        <tr><th class="col-prio">优先级</th><th>地点</th><th class="col-type">类型</th><th>必看亮点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">三峰山</span><span class="sights-notes">Tre Cime di Lavaredo</span></td>
+          <td class="col-type">自然</td>
+          <td>多洛米蒂最标志性岩壁，环线徒步 3–4h</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">刀锋山</span><span class="sights-notes">Seceda</span></td>
+          <td class="col-type">自然</td>
+          <td>缆车至 2500m，一侧绝壁一侧草坡</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">休斯高原</span><span class="sights-notes">Alpe di Siusi / Seiser Alm</span></td>
+          <td class="col-type">自然</td>
+          <td>欧洲最大高山草甸，秋色金黄</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="schedule-grid">
+
+      <!-- D10 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D10</span>
+          <span class="day-date">9/22 · 周二</span>
+          <span class="day-city">多洛米蒂 · 刀锋山 + 休斯高原</span>
+          <span class="transport-tag">🚌 火车 + 350路 大巴 + 缆车</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>06:30</strong> Brixen → 区域火车至博尔扎诺（30min）</li>
+            <li><strong>07:15</strong> 博尔扎诺站外 350 路大巴 → 奥蒂塞伊（Ortisei，1h）</li>
+            <li><strong>08:30–11:00</strong> 两段缆车上 <strong>刀锋山</strong> (Seceda，上午光线最佳)。<span class="urgent-dot">🧥 带外套，山顶温度低</span></li>
+            <li><strong>12:00–13:30</strong> <strong>休斯高原</strong> (Alpe di Siusi) — 欧洲最大高山草甸</li>
+            <li><strong>15:30–16:00</strong> 返回 Brixen</li>
+            <li>🌙 或乘 <strong>Plose 缆车</strong>（火车站步行 2min）上 2000m+ 简单徒步 1–2h</li>
+          </ul>
+          <div style="margin-top:8px;padding:8px 12px;background:#F8EDDA;border-radius:8px;font-size:0.82rem;color:#7A6630;">
+            💡 如果累 / 不想折腾：放弃休斯高原，上午 Seceda，下午 Plose，更轻松。
+          </div>
+        </div>
+      </div>
+
+      <!-- D11 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D11</span>
+          <span class="day-date">9/23 · 周三</span>
+          <span class="day-city">多洛米蒂 · 三峰山环线徒步</span>
+          <span class="transport-tag">🚌 火车 + 巴士 440/445</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>06:30</strong> Brixen → 区域火车至 Fortezza（10min）→ 换支线至多比亚科（1h）</li>
+            <li><strong>08:00</strong> 多比亚科乘巴士 440/445 至 <strong>安多诺湖</strong>，步行至 Rifugio Auronzo 登山口</li>
+            <li><span class="highlight-item">⛰️ <strong>三峰山</strong> (Tre Cime di Lavaredo) — 经典环线徒步 3–4h，起伏不大，绕三峰一周</span></li>
+            <li>🥾 穿徒步鞋或防滑运动鞋，带水和零食，山顶风大带外套</li>
+            <li><strong>14:00</strong> 下山，原路返回，约 16:00–16:30 到 Brixen</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D12 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D12</span>
+          <span class="day-date">9/24 · 周四</span>
+          <span class="day-city">Brixen ➞ 米兰</span>
+          <span class="transport-tag">🚄 区域火车 + 高铁 4h</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>09:00</strong> Brixen → 区域火车至维罗纳（约 2.5h）</li>
+            <li><strong>11:30</strong> 维罗纳换 Frecciarossa 高铁 → 米兰中央站（1h10min）</li>
+            <li><strong>12:45–13:00</strong> 抵达米兰，入住酒店</li>
+            <li>🌙 <strong>米兰大教堂广场</strong>初见 + <strong>文艺复兴百货顶楼</strong> Aperitivo，平视大教堂尖塔</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="map-toggle" onclick="toggleMap(this,'map-dolomiti')"><span class="icon">▼</span> 查看地图</button>
+    <div class="city-map-wrap" id="wrap-map-dolomiti"><div id="map-dolomiti" class="city-map"></div></div>
+  </div>
+</section>
+
+<section id="milano">
+  <span class="section-label">City 05</span>
+  <h2>🏛️ 米兰</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">D12–D14 · 2 晚住宿</p>
+  <div class="city-section">
+    <table class="sights-table">
+      <thead>
+        <tr><th class="col-prio">优先级</th><th>地点</th><th class="col-type">类型</th><th>必看亮点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
+          <td><span class="sights-name">米兰大教堂 + 登顶</span><span class="sights-notes">Duomo di Milano</span></td>
+          <td class="col-type">教堂</td>
+          <td>135 座哥特石雕尖塔，远眺阿尔卑斯山。<span class="urgent-dot" title="建议提前购票">🟡 建议提前购票</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">埃马努埃莱二世长廊</span><span class="sights-notes">Galleria Vittorio Emanuele II</span></td>
+          <td class="col-type">建筑/购物</td>
+          <td>玻璃钢架拱顶，公牛马赛克</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-1">⭐</span></td>
+          <td><span class="sights-name">感恩圣母堂《最后的晚餐》</span><span class="sights-notes">Santa Maria delle Grazie</span></td>
+          <td class="col-type">壁画</td>
+          <td>达芬奇真迹。<span class="urgent-dot" title="必须提前2-3个月抢票">🔴 最难约的票，提前 2–3 个月</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-1">⭐</span></td>
+          <td><span class="sights-name">斯福尔扎城堡</span><span class="sights-notes">Castello Sforzesco</span></td>
+          <td class="col-type">城堡</td>
+          <td>米开朗基罗未完成《隆达尼尼圣殇》，免费</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-1">⭐</span></td>
+          <td><span class="sights-name">布雷拉区</span><span class="sights-notes">Brera</span></td>
+          <td class="col-type">街区</td>
+          <td>买手店、画廊、伴手礼</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="schedule-grid">
+
+      <!-- D13 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D13</span>
+          <span class="day-date">9/25 · 周五</span>
+          <span class="day-city">米兰</span>
+          <span class="transport-tag">🚶 步行 / 地铁</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>08:30–10:00</strong> <strong>米兰大教堂</strong> 登顶 — <span class="urgent-dot">🟡 建议提前购票</span>，135 座尖塔，晴天远眺阿尔卑斯山 → <strong>埃马努埃莱二世长廊</strong></li>
+            <li><strong>10:30–12:00</strong> <strong>斯福尔扎城堡</strong>（免费入堡）+ 森皮奥内公园</li>
+            <li><strong>13:00–14:00</strong> <span class="highlight-item"><strong>感恩圣母堂</strong> — 达芬奇《最后的晚餐》真迹。 <span class="urgent-dot">🔴 提前 2–3 个月抢票</span>，预约 13:00–14:00 场次</span></li>
+            <li><strong>14:00–15:30</strong> <strong>布雷拉区</strong> (Brera) — 买手店、画廊、伴手礼</li>
+            <li>🌙 整理行李</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- D14 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D14</span>
+          <span class="day-date">9/26 · 周六</span>
+          <span class="day-city">米兰 ➞ 北京</span>
+          <span class="transport-tag">✈️ 经阿布扎比转机</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li>🧾 退房，乘 Malpensa Express 至 MXP（约 50min），<strong>09:30 前</strong> 到机场办退税</li>
+            <li><strong>EY082</strong> 米兰 MXP 11:40 → 阿布扎比 AUH 19:40</li>
+            <li><strong>EY888</strong> 阿布扎比 AUH 21:10 → 北京大兴 PKX 08:45+1</li>
+          </ul>
+          <div style="margin-top:8px;padding:8px 12px;background:#E8F0F5;border-radius:8px;font-size:0.82rem;color:#3D5A6E;">
+            ⚠️ 阿布扎比转机仅 1h30min，同航站楼正常够用。建议选座靠前，下机后快步前往下一程登机口。
+          </div>
+        </div>
+      </div>
+
+      <!-- D15 -->
+      <div class="day-card">
+        <div class="day-card-header">
+          <span class="day-num">D15</span>
+          <span class="day-date">9/27 · 周日</span>
+          <span class="day-city">抵达北京</span>
+        </div>
+        <div class="day-card-body">
+          <ul>
+            <li><strong>08:45</strong> 到达 <strong>北京大兴机场 (PKX)</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Overview Table ===== -->
+<section>
+  <span class="section-label">At a Glance</span>
+  <h2>📋 每日行程概览</h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>日期</th><th>周</th><th>城市</th><th>交通</th><th>核心安排</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>9/13 (D1)</td><td>日</td><td>北京 ➔ 罗马</td><td>TK197→TK1863</td><td>经伊斯坦布尔转机，Leonardo Express 到市区</td></tr>
+        <tr><td>9/14 (D2)</td><td>一</td><td>罗马</td><td>步行/地铁</td><td>斗兽场、古罗马广场；傍晚许愿池→万神殿→西班牙广场</td></tr>
+        <tr><td>9/15 (D3)</td><td>二</td><td>梵蒂冈</td><td>地铁 A 线</td><td>梵蒂冈博物馆（西斯廷）、圣彼得大教堂登顶、圣天使堡</td></tr>
+        <tr><td>9/16 (D4)</td><td>三</td><td>罗马</td><td>步行</td><td>博尔盖塞美术馆 + Trastevere 自由探索</td></tr>
+        <tr><td>9/17 (D5)</td><td>四</td><td>罗马 ➔ 佛罗伦萨</td><td>步行 + 高铁</td><td>上午自由活动；高铁至佛罗伦萨；傍晚米开朗基罗广场日落</td></tr>
+        <tr><td>9/18 (D6)</td><td>五</td><td>佛罗伦萨</td><td>步行</td><td>百花大教堂登顶；下午乌菲兹</td></tr>
+        <tr><td>9/19 (D7)</td><td>六</td><td>佛罗伦萨 ➔ 威尼斯</td><td>步行 + 高铁</td><td>上午学院美术馆《大卫》；退房高铁至威尼斯；傍晚大运河夕阳</td></tr>
+        <tr><td>9/20 (D8)</td><td>日</td><td>威尼斯</td><td>水上巴士</td><td>彩色岛、圣马可广场、叹息桥、贡多拉</td></tr>
+        <tr><td>9/21 (D9)</td><td>一</td><td>威尼斯 ➔ Brixen</td><td>火车</td><td>早班火车至 Brixen（3.5–4h），入住后逛老城</td></tr>
+        <tr><td>9/22 (D10)</td><td>二</td><td>多洛米蒂</td><td>火车+大巴+缆车</td><td>刀锋山（Seceda）+ 休斯高原，日归 Brixen</td></tr>
+        <tr><td>9/23 (D11)</td><td>三</td><td>多洛米蒂</td><td>火车+巴士</td><td>三峰山（Tre Cime）环线徒步 3–4h，日归 Brixen</td></tr>
+        <tr><td>9/24 (D12)</td><td>四</td><td>Brixen ➔ 米兰</td><td>区域火车+高铁</td><td>Brixen→维罗纳→米兰（约 4h），傍晚大教堂广场初见</td></tr>
+        <tr><td>9/25 (D13)</td><td>五</td><td>米兰</td><td>步行/地铁</td><td>大教堂登顶 + 最后的晚餐 + 斯福尔扎城堡 + 布雷拉</td></tr>
+        <tr><td>9/26 (D14)</td><td>六</td><td>米兰 ➔ 北京</td><td>EY082→EY888</td><td>退税，经阿布扎比转机</td></tr>
+        <tr><td>9/27 (D15)</td><td>日</td><td>抵达北京</td><td>—</td><td>08:45 到大兴机场</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr style="border:none;border-top:1px solid #EDE8E2;margin:2rem 0;">
+
+<!-- ===== Budget ===== -->
+<section id="budget">
+  <span class="section-label">Finance</span>
+  <h2>💰 预算总览</h2>
+  <p style="color:#7A746E;font-size:0.9rem;margin-bottom:1.5rem;">汇率按 1 EUR ≈ 8 CNY 折算。价格为 <strong>2 人合计</strong>。</p>
+
+  <h3 class="budget-cat">✈️ 机票（已定）</h3>
+  <div class="budget-summary">
+    <div class="budget-card">
+      <div class="label">北京 ⇄ 意大利 往返</div>
+      <div class="amount">12,000 元</div>
+      <div class="note">6,000 元/人</div>
+    </div>
+  </div>
+
+  <h3 class="budget-cat">🏨 住宿（已确认）</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>城市</th><th>酒店</th><th>日期</th><th>晚数</th><th>金额</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>罗马</td><td>Madison Hotel</td><td>9/13–9/17</td><td><strong>4 晚</strong></td><td><strong>5,529 元</strong></td></tr>
+        <tr><td>佛罗伦萨</td><td>Hotel Victoria</td><td>9/17–9/19</td><td>2 晚</td><td>2,307 元</td></tr>
+        <tr><td>威尼斯</td><td>Hotel Marte</td><td>9/19–9/21</td><td>2 晚</td><td>3,141 元</td></tr>
+        <tr><td>Brixen</td><td>Residence Isarcus</td><td>9/21–9/24</td><td>3 晚</td><td>3,612 元</td></tr>
+        <tr><td>米兰</td><td>Hotel Soperga</td><td>9/24–9/26</td><td><strong>2 晚</strong></td><td><strong>2,658 元</strong></td></tr>
+        <tr style="font-weight:700;background:#E8F0F5 !important;">
+          <td colspan="3">住宿合计</td><td>13 晚</td><td><strong>17,247 元</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="budget-cat">🚄 城际交通（预估）</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>路段</th><th>单价（每人）</th><th>2人合计</th><th>折合 CNY</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>罗马 → 佛罗伦萨（高铁）</td><td>15 EUR</td><td>30 EUR</td><td>~240 元</td></tr>
+        <tr><td>佛罗伦萨 → 威尼斯（高铁）</td><td>—</td><td>—</td><td>300 元</td></tr>
+        <tr><td>威尼斯 → Brixen（火车）</td><td>45 EUR</td><td>90 EUR</td><td>~720 元</td></tr>
+        <tr><td>Brixen → 米兰（区域+高铁）</td><td>70 EUR</td><td>140 EUR</td><td>~1,120 元</td></tr>
+        <tr style="font-weight:700;background:#E8F0F5 !important;">
+          <td colspan="3">城际合计</td><td><strong>~2,380 元</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:1.5rem;">
+    <div class="budget-card">
+      <div class="label">✅ 已定小计</div>
+      <div class="amount" style="color:#3D7A9E;">≈ 31,627 元</div>
+      <div class="note">机票 12,000 + 住宿 17,247 + 城际 2,380</div>
+    </div>
+    <div class="budget-card">
+      <div class="label">📊 两人总计预估</div>
+      <div class="amount" style="color:#B85C4A;">≈ 44,000–49,000 元</div>
+      <div class="note">含市内交通、门票、餐饮、其他</div>
+    </div>
+  </div>
+
+  <h3 class="budget-cat">📌 待估算支出</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>类别</th><th>估算（2人）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>市内交通（地铁/水上巴士/缆车/机场快线）</td><td>~1,500 元</td></tr>
+        <tr><td>景区门票（斗兽场、梵蒂冈、乌菲兹等 8 处）</td><td>~2,000 元</td></tr>
+        <tr><td>餐饮（13 天，约 200–300 元/天/2人）</td><td>8,000–12,000 元</td></tr>
+        <tr><td>其他（零食、水、纪念品）</td><td>1,000–2,000 元</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr style="border:none;border-top:1px solid #EDE8E2;margin:2rem 0;">
+
+<!-- ===== Tickets Booking Urgency ===== -->
+<section>
+  <span class="section-label">Booking</span>
+  <h2>🎫 门票紧迫度排序</h2>
+  <p style="color:#5A544E;margin-bottom:1rem;">全部在官网购买，勿通过第三方加价。</p>
+  <div class="ticket-urgency">
+    <span class="ticket-tag red">🔴 最后的晚餐 — 提前 2–3 个月</span>
+    <span class="ticket-tag red">🔴 梵蒂冈博物馆 — 提前 30–60 天</span>
+    <span class="ticket-tag red">🔴 博尔盖塞美术馆 — 提前 30 天</span>
+    <span class="ticket-tag red">🔴 乌菲兹美术馆 — 提前 20–30 天</span>
+    <span class="ticket-tag red">🔴 罗马斗兽场 — 提前 20–30 天</span>
+    <span class="ticket-tag red">🔴 学院美术馆 — 提前 20–30 天</span>
+    <span class="ticket-tag yellow">🟡 米兰大教堂登顶 — 提前 7–14 天</span>
+    <span class="ticket-tag yellow">🟡 百花大教堂登顶 — 提前 7–14 天</span>
+    <span class="ticket-tag yellow">🟡 总督宫 — 提前 7–14 天</span>
+  </div>
+</section>
+
+<hr style="border:none;border-top:1px solid #EDE8E2;margin:2rem 0;">
+
+<!-- ===== Tips ===== -->
+<section id="tips">
+  <span class="section-label">Advice</span>
+  <h2>💡 自由行·实用提示</h2>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-num">1</div>
+      <h4>行李限制</h4>
+      <p>高铁行李架有限，老城多石子路。<strong>每人限 26 寸行李箱 + 双肩包</strong>。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">2</div>
+      <h4>多洛米蒂无车方案</h4>
+      <p>以 <strong>Brixen（布雷萨诺内）</strong> 为固定住宿点，无需换酒店。Seceda/休斯高原经博尔扎诺转大巴；三峰山经 Fortezza 转多比亚科巴士。<strong>Plose 缆车</strong>（火车站步行 2min）可作为轻松备选。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">3</div>
+      <h4>防盗防骗</h4>
+      <p>有人递红绳 / 塞鸽子饲料 / 帮搬行李 → 说 <strong>"No"</strong> 并走开。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">4</div>
+      <h4>教堂着装</h4>
+      <p>禁露肩露膝，随身带 <strong>丝巾或薄外套</strong>。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">5</div>
+      <h4>Mobilcard 山区公交卡</h4>
+      <p>在 Brixen 山下范围不适用，日归当天再按需购买单次票或天票。</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">6</div>
+      <h4>必抢门票</h4>
+      <p>按紧迫程度：<strong>🔴 最后的晚餐</strong>（提前 2–3 月）→ <strong>🔴 梵蒂冈博物馆</strong>（提前 30–60 天）→ <strong>🔴 博尔盖塞</strong>（提前 30 天）→ 乌菲兹 / 斗兽场 / 学院美术馆（提前 20–30 天）。</p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<!-- ===== Footer ===== -->
+<footer class="page-footer">
+  <p>意大利中北部自由行 · 9月13日 — 9月27日 · 2026</p>
+  <p style="margin-top:4px;font-size:0.78rem;">罗马 → 佛罗伦萨 → 威尼斯 → 多洛米蒂 → 米兰</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function() {
+  'use strict';
+
+  // Route bar shadow on scroll
+  const routeBar = document.getElementById('routeBar');
+  if (routeBar) {
+    window.addEventListener('scroll', function() {
+      routeBar.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+  }
+
+  // Intersection Observer for route bar city highlights
+  const citySections = {
+    roma: document.getElementById('roma'),
+    firenze: document.getElementById('firenze'),
+    venezia: document.getElementById('venezia'),
+    dolomiti: document.getElementById('dolomiti'),
+    milano: document.getElementById('milano')
+  };
+
+  const routeCities = document.querySelectorAll('.route-city');
+
+  const observerOptions = {
+    rootMargin: '-30% 0px -50% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        routeCities.forEach(function(el) {
+          el.classList.toggle('active', el.dataset.city === id);
+        });
+      }
+    });
+  }, observerOptions);
+
+  Object.values(citySections).forEach(function(section) {
+    if (section) observer.observe(section);
+  });
+
+  // If user clicks a route city link, highlight it immediately
+  routeCities.forEach(function(el) {
+    el.addEventListener('click', function() {
+      routeCities.forEach(function(c) { c.classList.remove('active'); });
+      el.classList.add('active');
+    });
+  });
+
+  // ===== Leaflet Maps =====
+  const cityData = {
+    'map-roma': {
+      center: [41.897, 12.478],
+      zoom: 13,
+      markers: [
+        { lat: 41.8902, lng: 12.4922, name: '罗马斗兽场 Colosseum', prio: 3 },
+        { lat: 41.8925, lng: 12.4853, name: '古罗马广场 + 帕拉蒂尼山', prio: 3 },
+        { lat: 41.8986, lng: 12.4769, name: '万神殿 Pantheon', prio: 3 },
+        { lat: 41.9009, lng: 12.4833, name: '特雷维喷泉 Trevi Fountain', prio: 3 },
+        { lat: 41.9065, lng: 12.4536, name: '梵蒂冈博物馆 Vatican Museums', prio: 3 },
+        { lat: 41.9022, lng: 12.4539, name: '圣彼得大教堂 St. Peter\'s', prio: 3 },
+        { lat: 41.9060, lng: 12.4823, name: '西班牙广场 Spanish Steps', prio: 2 },
+        { lat: 41.9031, lng: 12.4664, name: '圣天使堡 Castel Sant\'Angelo', prio: 2 },
+        { lat: 41.9142, lng: 12.4921, name: '博尔盖塞美术馆 Borghese', prio: 2 },
+        { lat: 41.8957, lng: 12.4829, name: '威尼斯广场 Piazza Venezia', prio: 1 }
+      ]
+    },
+    'map-firenze': {
+      center: [43.770, 11.258],
+      zoom: 14,
+      markers: [
+        { lat: 43.7731, lng: 11.2560, name: '圣母百花大教堂 Duomo', prio: 3 },
+        { lat: 43.7687, lng: 11.2558, name: '乌菲兹美术馆 Uffizi', prio: 3 },
+        { lat: 43.7629, lng: 11.2651, name: '米开朗基罗广场 P.le Michelangelo', prio: 3 },
+        { lat: 43.7768, lng: 11.2599, name: '学院美术馆 Accademia (大卫)', prio: 2 },
+        { lat: 43.7696, lng: 11.2558, name: '领主广场 Piazza Signoria', prio: 2 }
+      ]
+    },
+    'map-venezia': {
+      center: [45.44, 12.34],
+      zoom: 13,
+      markers: [
+        { lat: 45.4342, lng: 12.3388, name: '圣马可广场 Piazza San Marco', prio: 3 },
+        { lat: 45.4388, lng: 12.3271, name: '大运河 Grand Canal', prio: 3 },
+        { lat: 45.4858, lng: 12.4175, name: '彩色岛 Burano', prio: 3 },
+        { lat: 45.4340, lng: 12.3411, name: '叹息桥 + 总督宫', prio: 2 },
+        { lat: 45.4345, lng: 12.3375, name: '贡多拉 Gondola', prio: 1 }
+      ]
+    },
+    'map-dolomiti': {
+      center: [46.58, 11.78],
+      zoom: 10,
+      markers: [
+        { lat: 46.6186, lng: 12.2937, name: '三峰山 Tre Cime di Lavaredo ⭐⭐⭐', prio: 3 },
+        { lat: 46.6075, lng: 11.7177, name: '刀锋山 Seceda ⭐⭐', prio: 2 },
+        { lat: 46.5423, lng: 11.6415, name: '休斯高原 Alpe di Siusi ⭐⭐', prio: 2 },
+        { lat: 46.7164, lng: 11.6583, name: 'Brixen 布雷萨诺内 (住宿点)', prio: 0 }
+      ]
+    },
+    'map-milano': {
+      center: [45.467, 9.186],
+      zoom: 14,
+      markers: [
+        { lat: 45.4642, lng: 9.1900, name: '米兰大教堂 Duomo', prio: 3 },
+        { lat: 45.4657, lng: 9.1903, name: '埃马努埃莱二世长廊', prio: 2 },
+        { lat: 45.4660, lng: 9.1709, name: '感恩圣母堂《最后的晚餐》', prio: 1 },
+        { lat: 45.4709, lng: 9.1791, name: '斯福尔扎城堡 Castello Sforcesco', prio: 1 },
+        { lat: 45.4725, lng: 9.1883, name: '布雷拉区 Brera', prio: 1 }
+      ]
+    }
+  };
+
+  const prioColors = {
+    3: '#C58B3D',
+    2: '#3D7A9E',
+    1: '#8A847E',
+    0: '#6A8D5E'
+  };
+
+  const maps = {};
+  let mapInitialized = {};
+
+  window.toggleMap = function(btn, mapId) {
+    const wrap = document.getElementById('wrap-' + mapId);
+    if (!wrap) return;
+    const isOpen = wrap.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.querySelector('.icon').textContent = isOpen ? '▲' : '▼';
+    btn.textContent = isOpen ? ' 收起地图' : ' 查看地图';
+    btn.prepend(btn.querySelector('.icon') || (function(){const s=document.createElement('span');s.className='icon';s.textContent=isOpen?'▲':'▼';return s})());
+
+    if (isOpen && !mapInitialized[mapId]) {
+      mapInitialized[mapId] = true;
+      setTimeout(function() {
+        initMap(mapId);
+      }, 100);
+    }
+  };
+
+  function initMap(mapId) {
+    const data = cityData[mapId];
+    if (!data) return;
+
+    const map = L.map(mapId, {
+      center: data.center,
+      zoom: data.zoom,
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB'
+    }).addTo(map);
+
+    data.markers.forEach(function(m) {
+      const color = prioColors[m.prio] || '#8A847E';
+      const icon = L.divIcon({
+        className: '',
+        html: '<div style="background:' + color + ';width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+      L.marker([m.lat, m.lng], { icon: icon }).addTo(map)
+        .bindPopup('<strong>' + m.name + '</strong>');
+    });
+
+    maps[mapId] = map;
+
+    // Fix map rendering after opening
+    setTimeout(function() { map.invalidateSize(); }, 200);
+  }
+
+  // Fix map on resize
+  window.addEventListener('resize', function() {
+    Object.keys(maps).forEach(function(id) {
+      if (maps[id]) maps[id].invalidateSize();
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
