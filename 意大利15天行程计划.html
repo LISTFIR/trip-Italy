@@ -210,6 +210,24 @@ section { padding: 2rem 0; }
   .city-map-wrap.open { max-height: 260px; margin-left: -16px; margin-right: -16px; }
 }
 
+/* ===== City Layout: schedule + map side by side ===== */
+.city-layout {
+  display: flex; gap: 24px; align-items: flex-start;
+  margin-top: 2.5rem;
+}
+.city-layout-schedule { flex: 1; min-width: 0; }
+.city-layout-map {
+  flex: 0 0 420px; position: sticky; top: 80px;
+  align-self: flex-start;
+}
+.city-layout-map .city-map-wrap { max-height: none; opacity: 1; margin: 0; }
+.city-layout-map .city-map { height: 480px; }
+@media (max-width: 860px) {
+  .city-layout { flex-direction: column; }
+  .city-layout-map { flex: none; width: 100%; position: static; }
+  .city-layout-map .city-map { height: 300px; }
+}
+
 /* ===== Daily Schedule ===== */
 .schedule-grid {
   display: flex; flex-direction: column; gap: 12px;
@@ -557,6 +575,8 @@ section { padding: 2rem 0; }
       </tbody>
     </table>
 
+    <div class="city-layout">
+      <div class="city-layout-schedule">
     <div class="schedule-grid">
 
       <!-- D1 -->
@@ -631,13 +651,13 @@ section { padding: 2rem 0; }
         </div>
       </div>
 
-      
+
     </div>
-
-    
-
-    <button class="map-toggle" onclick="toggleMap(this,'map-roma')"><span class="icon">▼</span> 查看地图</button>
-    <div class="city-map-wrap" id="wrap-map-roma"><div id="map-roma" class="city-map"></div></div>
+      </div>
+      <div class="city-layout-map">
+        <div class="city-map-wrap open" id="wrap-map-roma"><div id="map-roma" class="city-map"></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -726,6 +746,8 @@ section { padding: 2rem 0; }
       </tbody>
     </table>
 
+    <div class="city-layout">
+      <div class="city-layout-schedule">
     <div class="schedule-grid">
 
       <!-- D5 -->
@@ -781,11 +803,11 @@ section { padding: 2rem 0; }
         </div>
       </div>
     </div>
-
-    
-
-    <button class="map-toggle" onclick="toggleMap(this,'map-firenze')"><span class="icon">▼</span> 查看地图</button>
-    <div class="city-map-wrap" id="wrap-map-firenze"><div id="map-firenze" class="city-map"></div></div>
+      </div>
+      <div class="city-layout-map">
+        <div class="city-map-wrap open" id="wrap-map-firenze"><div id="map-firenze" class="city-map"></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -862,6 +884,8 @@ section { padding: 2rem 0; }
       </tbody>
     </table>
 
+    <div class="city-layout">
+      <div class="city-layout-schedule">
     <div class="schedule-grid">
 
       <!-- D8 -->
@@ -900,8 +924,11 @@ section { padding: 2rem 0; }
         </div>
       </div>
     </div>
-    <button class="map-toggle" onclick="toggleMap(this,'map-venezia')"><span class="icon">▼</span> 查看地图</button>
-    <div class="city-map-wrap" id="wrap-map-venezia"><div id="map-venezia" class="city-map"></div></div>
+      </div>
+      <div class="city-layout-map">
+        <div class="city-map-wrap open" id="wrap-map-venezia"><div id="map-venezia" class="city-map"></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -942,6 +969,8 @@ section { padding: 2rem 0; }
       </tbody>
     </table>
 
+    <div class="city-layout">
+      <div class="city-layout-schedule">
     <div class="schedule-grid">
 
       <!-- D10 -->
@@ -1006,8 +1035,11 @@ section { padding: 2rem 0; }
         </div>
       </div>
     </div>
-    <button class="map-toggle" onclick="toggleMap(this,'map-dolomiti')"><span class="icon">▼</span> 查看地图</button>
-    <div class="city-map-wrap" id="wrap-map-dolomiti"><div id="map-dolomiti" class="city-map"></div></div>
+      </div>
+      <div class="city-layout-map">
+        <div class="city-map-wrap open" id="wrap-map-dolomiti"><div id="map-dolomiti" class="city-map"></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1054,6 +1086,8 @@ section { padding: 2rem 0; }
       </tbody>
     </table>
 
+    <div class="city-layout">
+      <div class="city-layout-schedule">
     <div class="schedule-grid">
 
       <!-- D13 -->
@@ -1107,6 +1141,11 @@ section { padding: 2rem 0; }
             <li><strong>08:45</strong> 到达 <strong>北京大兴机场 (PKX)</strong></li>
           </ul>
         </div>
+      </div>
+    </div>
+      </div>
+      <div class="city-layout-map">
+        <div class="city-map-wrap open" id="wrap-map-milano"><div id="map-milano" class="city-map"></div></div>
       </div>
     </div>
   </div>
@@ -1348,105 +1387,87 @@ section { padding: 2rem 0; }
   });
 
   // ===== Leaflet Maps =====
+  const dayColors = {
+    1: '#D4A040', 2: '#3D7A9E', 3: '#6B8E5A', 4: '#B86A4A',
+    5: '#8E6B9E', 6: '#C58B3D', 7: '#5A8E7A', 8: '#A86A6A',
+    9: '#4A7A8E', 10: '#7A8E5A', 11: '#B88A3A', 12: '#8E7A6A',
+    13: '#6A7A8E', 14: '#7A6A7A'
+  };
+
   const cityData = {
     'map-roma': {
       center: [41.897, 12.478],
       zoom: 13,
       markers: [
-        { lat: 41.8902, lng: 12.4922, name: '罗马斗兽场 Colosseum', prio: 3 },
-        { lat: 41.8925, lng: 12.4853, name: '古罗马广场 + 帕拉蒂尼山', prio: 3 },
-        { lat: 41.8986, lng: 12.4769, name: '万神殿 Pantheon', prio: 3 },
-        { lat: 41.9009, lng: 12.4833, name: '特雷维喷泉 Trevi Fountain', prio: 3 },
-        { lat: 41.9065, lng: 12.4536, name: '梵蒂冈博物馆 Vatican Museums', prio: 3 },
-        { lat: 41.9022, lng: 12.4539, name: '圣彼得大教堂 St. Peter\'s', prio: 3 },
-        { lat: 41.9060, lng: 12.4823, name: '西班牙广场 Spanish Steps', prio: 2 },
-        { lat: 41.9031, lng: 12.4664, name: '圣天使堡 Castel Sant\'Angelo', prio: 2 },
-        { lat: 41.9142, lng: 12.4921, name: '博尔盖塞美术馆 Borghese', prio: 2 },
-        { lat: 41.8957, lng: 12.4829, name: '威尼斯广场 Piazza Venezia', prio: 1 }
+        { lat: 41.8902, lng: 12.4922, name: '罗马斗兽场 Colosseum', day: 2 },
+        { lat: 41.8925, lng: 12.4853, name: '古罗马广场 + 帕拉蒂尼山', day: 2 },
+        { lat: 41.8986, lng: 12.4769, name: '万神殿 Pantheon', day: 2 },
+        { lat: 41.9009, lng: 12.4833, name: '特雷维喷泉 Trevi Fountain', day: 2 },
+        { lat: 41.9065, lng: 12.4536, name: '梵蒂冈博物馆 Vatican Museums', day: 3 },
+        { lat: 41.9022, lng: 12.4539, name: '圣彼得大教堂 St. Peter\'s', day: 3 },
+        { lat: 41.9060, lng: 12.4823, name: '西班牙广场 Spanish Steps', day: 2 },
+        { lat: 41.9031, lng: 12.4664, name: '圣天使堡 Castel Sant\'Angelo', day: 3 },
+        { lat: 41.9142, lng: 12.4921, name: '博尔盖塞美术馆 Borghese', day: 4 },
+        { lat: 41.8957, lng: 12.4829, name: '威尼斯广场 Piazza Venezia', day: 2 }
       ]
     },
     'map-firenze': {
       center: [43.770, 11.258],
       zoom: 14,
       markers: [
-        { lat: 43.7731, lng: 11.2560, name: '圣母百花大教堂 Duomo', prio: 3 },
-        { lat: 43.7687, lng: 11.2558, name: '乌菲兹美术馆 Uffizi', prio: 3 },
-        { lat: 43.7629, lng: 11.2651, name: '米开朗基罗广场 P.le Michelangelo', prio: 3 },
-        { lat: 43.7768, lng: 11.2599, name: '学院美术馆 Accademia (大卫)', prio: 2 },
-        { lat: 43.7697, lng: 11.2562, name: '旧宫 Palazzo Vecchio', prio: 2 },
-        { lat: 43.7696, lng: 11.2558, name: '领主广场 Piazza Signoria', prio: 2 },
-        { lat: 43.7679, lng: 11.2533, name: '老桥 Ponte Vecchio', prio: 2 },
-        { lat: 43.7746, lng: 11.2491, name: '新圣母大殿 Santa Maria Novella', prio: 2 },
-        { lat: 43.7685, lng: 11.2638, name: '佛罗伦萨圣十字大殿 Santa Croce', prio: 2 },
-        { lat: 43.7718, lng: 11.2543, name: '共和广场 P.za Repubblica', prio: 1 }
+        { lat: 43.7731, lng: 11.2560, name: '圣母百花大教堂 Duomo', day: 6 },
+        { lat: 43.7687, lng: 11.2558, name: '乌菲兹美术馆 Uffizi', day: 6 },
+        { lat: 43.7629, lng: 11.2651, name: '米开朗基罗广场 P.le Michelangelo', day: 5 },
+        { lat: 43.7768, lng: 11.2599, name: '学院美术馆 Accademia (大卫)', day: 7 },
+        { lat: 43.7697, lng: 11.2562, name: '旧宫 Palazzo Vecchio', day: 6 },
+        { lat: 43.7696, lng: 11.2558, name: '领主广场 Piazza Signoria', day: 6 },
+        { lat: 43.7679, lng: 11.2533, name: '老桥 Ponte Vecchio', day: 6 },
+        { lat: 43.7746, lng: 11.2491, name: '新圣母大殿 Santa Maria Novella', day: 5 },
+        { lat: 43.7685, lng: 11.2638, name: '佛罗伦萨圣十字大殿 Santa Croce', day: 6 },
+        { lat: 43.7718, lng: 11.2543, name: '共和广场 P.za Repubblica', day: 6 }
       ]
     },
     'map-venezia': {
       center: [45.44, 12.34],
       zoom: 13,
       markers: [
-        { lat: 45.4342, lng: 12.3388, name: '圣马可广场 Piazza San Marco', prio: 3 },
-        { lat: 45.4388, lng: 12.3271, name: '大运河 Grand Canal', prio: 3 },
-        { lat: 45.4858, lng: 12.4175, name: '彩色岛 Burano', prio: 3 },
-        { lat: 45.4340, lng: 12.3411, name: '总督宫 Doge\'s Palace', prio: 2 },
-        { lat: 45.4308, lng: 12.3344, name: '安康圣母教堂 Salute', prio: 2 },
-        { lat: 45.4375, lng: 12.3261, name: '圣方济会荣耀圣母圣殿 Frari', prio: 2 },
-        { lat: 45.4410, lng: 12.3345, name: '黄金宫 Ca\' d\'Oro', prio: 2 },
-        { lat: 45.4343, lng: 12.3415, name: '叹息桥 Bridge of Sighs', prio: 1 },
-        { lat: 45.4392, lng: 12.3412, name: '圣若望及保禄大殿 SS. Giovanni e Paolo', prio: 1 },
-        { lat: 45.4345, lng: 12.3375, name: '贡多拉 Gondola', prio: 1 }
+        { lat: 45.4342, lng: 12.3388, name: '圣马可广场 Piazza San Marco', day: 8 },
+        { lat: 45.4388, lng: 12.3271, name: '大运河 Grand Canal', day: 8 },
+        { lat: 45.4858, lng: 12.4175, name: '彩色岛 Burano', day: 8 },
+        { lat: 45.4340, lng: 12.3411, name: '总督宫 Doge\'s Palace', day: 8 },
+        { lat: 45.4308, lng: 12.3344, name: '安康圣母教堂 Salute', day: 9 },
+        { lat: 45.4375, lng: 12.3261, name: '圣方济会荣耀圣母圣殿 Frari', day: 9 },
+        { lat: 45.4410, lng: 12.3345, name: '黄金宫 Ca\' d\'Oro', day: 9 },
+        { lat: 45.4343, lng: 12.3415, name: '叹息桥 Bridge of Sighs', day: 8 },
+        { lat: 45.4392, lng: 12.3412, name: '圣若望及保禄大殿 SS. Giovanni e Paolo', day: 9 },
+        { lat: 45.4345, lng: 12.3375, name: '贡多拉 Gondola', day: 8 }
       ]
     },
     'map-dolomiti': {
       center: [46.58, 11.78],
       zoom: 10,
       markers: [
-        { lat: 46.6186, lng: 12.2937, name: '三峰山 Tre Cime di Lavaredo ⭐⭐⭐', prio: 3 },
-        { lat: 46.6075, lng: 11.7177, name: '刀锋山 Seceda ⭐⭐', prio: 2 },
-        { lat: 46.5423, lng: 11.6415, name: '休斯高原 Alpe di Siusi ⭐⭐', prio: 2 },
-        { lat: 46.5780, lng: 12.2550, name: '密苏里纳湖 Lago di Misurina ⭐⭐', prio: 2 },
-        { lat: 46.7164, lng: 11.6583, name: 'Brixen 布雷萨诺内 (住宿点)', prio: 0 }
+        { lat: 46.6186, lng: 12.2937, name: '三峰山 Tre Cime di Lavaredo', day: 11 },
+        { lat: 46.6075, lng: 11.7177, name: '刀锋山 Seceda', day: 10 },
+        { lat: 46.5423, lng: 11.6415, name: '休斯高原 Alpe di Siusi', day: 10 },
+        { lat: 46.5780, lng: 12.2550, name: '密苏里纳湖 Lago di Misurina', day: 11 },
+        { lat: 46.7164, lng: 11.6583, name: 'Brixen 布雷萨诺内 (住宿点)', day: 10 }
       ]
     },
     'map-milano': {
       center: [45.467, 9.186],
       zoom: 14,
       markers: [
-        { lat: 45.4642, lng: 9.1900, name: '米兰大教堂 Duomo', prio: 3 },
-        { lat: 45.4657, lng: 9.1903, name: '埃马努埃莱二世长廊', prio: 2 },
-        { lat: 45.4660, lng: 9.1709, name: '感恩圣母堂《最后的晚餐》', prio: 1 },
-        { lat: 45.4709, lng: 9.1791, name: '斯福尔扎城堡 Castello Sforcesco', prio: 1 },
-        { lat: 45.4725, lng: 9.1883, name: '布雷拉区 Brera', prio: 1 }
+        { lat: 45.4642, lng: 9.1900, name: '米兰大教堂 Duomo', day: 13 },
+        { lat: 45.4657, lng: 9.1903, name: '埃马努埃莱二世长廊', day: 13 },
+        { lat: 45.4660, lng: 9.1709, name: '感恩圣母堂《最后的晚餐》', day: 13 },
+        { lat: 45.4709, lng: 9.1791, name: '斯福尔扎城堡 Castello Sforcesco', day: 13 },
+        { lat: 45.4725, lng: 9.1883, name: '布雷拉区 Brera', day: 13 }
       ]
     }
   };
 
-  const prioColors = {
-    3: '#C58B3D',
-    2: '#3D7A9E',
-    1: '#8A847E',
-    0: '#6A8D5E'
-  };
-
   const maps = {};
-  let mapInitialized = {};
-
-  window.toggleMap = function(btn, mapId) {
-    const wrap = document.getElementById('wrap-' + mapId);
-    if (!wrap) return;
-    const isOpen = wrap.classList.toggle('open');
-    btn.classList.toggle('open', isOpen);
-    btn.querySelector('.icon').textContent = isOpen ? '▲' : '▼';
-    btn.textContent = isOpen ? ' 收起地图' : ' 查看地图';
-    btn.prepend(btn.querySelector('.icon') || (function(){const s=document.createElement('span');s.className='icon';s.textContent=isOpen?'▲':'▼';return s})());
-
-    if (isOpen && !mapInitialized[mapId]) {
-      mapInitialized[mapId] = true;
-      setTimeout(function() {
-        initMap(mapId);
-      }, 100);
-    }
-  };
 
   function initMap(mapId) {
     const data = cityData[mapId];
@@ -1466,17 +1487,65 @@ section { padding: 2rem 0; }
 
     L.control.scale({ metric: true, imperial: false }).addTo(map);
 
+    // Group markers by day
+    const byDay = {};
     data.markers.forEach(function(m) {
-      const color = prioColors[m.prio] || '#8A847E';
-      const icon = L.divIcon({
-        className: '',
-        html: '<div style="background:' + color + ';width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
-      });
-      L.marker([m.lat, m.lng], { icon: icon }).addTo(map)
-        .bindPopup('<strong>' + m.name + '</strong>');
+      const d = m.day || 0;
+      if (!byDay[d]) byDay[d] = [];
+      byDay[d].push(m);
     });
+
+    // Draw day areas and markers
+    Object.keys(byDay).forEach(function(dayKey) {
+      const day = parseInt(dayKey, 10);
+      const group = byDay[day];
+      const color = dayColors[day] || '#8A847E';
+      const latlngs = group.map(function(m) { return [m.lat, m.lng]; });
+
+      // Polygon/polyline connecting same-day points
+      if (latlngs.length >= 3) {
+        L.polygon(latlngs, {
+          color: color, weight: 1.5, fillColor: color, fillOpacity: 0.1, dashArray: '4 6'
+        }).addTo(map);
+      } else if (latlngs.length === 2) {
+        L.polyline(latlngs, {
+          color: color, weight: 2, opacity: 0.35, dashArray: '4 6'
+        }).addTo(map);
+      }
+
+      // Markers
+      group.forEach(function(m) {
+        const isBase = m.name.indexOf('住宿点') !== -1;
+        const size = isBase ? 10 : 15;
+        const icon = L.divIcon({
+          className: '',
+          html: '<div style="background:' + color + ';width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>',
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2]
+        });
+        L.marker([m.lat, m.lng], { icon: icon }).addTo(map)
+          .bindTooltip('<span style="font-weight:600;color:' + color + ';">D' + day + '</span> ' + m.name, {
+            permanent: true, direction: 'top', offset: [0, -10], opacity: 0.9
+          });
+      });
+    });
+
+    // Day legend
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = function() {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.style.cssText = 'background:#fff;padding:6px 10px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.15);font-size:0.75rem;line-height:1.6;';
+      const days = Object.keys(byDay).sort(function(a,b){ return a-b; });
+      let html = '<div style="font-weight:600;margin-bottom:2px;color:#2B2826;">按天</div>';
+      days.forEach(function(dayKey) {
+        const d = parseInt(dayKey, 10);
+        if (d === 0) return;
+        html += '<div style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + dayColors[d] + ';"></span> D' + d + '</div>';
+      });
+      div.innerHTML = html;
+      return div;
+    };
+    legend.addTo(map);
 
     maps[mapId] = map;
 
@@ -1489,6 +1558,13 @@ section { padding: 2rem 0; }
     Object.keys(maps).forEach(function(id) {
       if (maps[id]) maps[id].invalidateSize();
     });
+  });
+
+  // Auto-init all city maps on load
+  ['map-roma','map-firenze','map-venezia','map-dolomiti','map-milano'].forEach(function(id) {
+    if (document.getElementById(id)) {
+      setTimeout(function() { initMap(id); }, 150);
+    }
   });
 })();
 </script>
