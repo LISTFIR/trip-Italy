@@ -210,6 +210,24 @@ section { padding: 2rem 0; }
   .city-map-wrap.open { max-height: 260px; margin-left: -16px; margin-right: -16px; }
 }
 
+/* ===== Back to Top ===== */
+.back-to-top {
+  position: fixed; bottom: 32px; right: 32px; z-index: 50;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(61, 122, 158, 0.9); color: #fff; border: none;
+  font-size: 1.25rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.25s ease;
+  opacity: 0; transform: translateY(60px); pointer-events: none;
+}
+.back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.back-to-top:hover { background: #3D7A9E; transform: translateY(-2px); }
+.back-to-top:active { transform: translateY(0); }
+@media (max-width: 600px) {
+  .back-to-top { bottom: 20px; right: 20px; width: 42px; height: 42px; font-size: 1.1rem; }
+}
+
 /* ===== Daily Schedule ===== */
 .schedule-grid {
   display: flex; flex-direction: column; gap: 12px;
@@ -1113,7 +1131,7 @@ section { padding: 2rem 0; }
 </section>
 
 <!-- ===== Overview Table ===== -->
-<section>
+<section id="daily">
   <span class="section-label">At a Glance</span>
   <h2>📋 每日行程概览</h2>
   <div class="table-wrap">
@@ -1294,6 +1312,8 @@ section { padding: 2rem 0; }
   <p>意大利中北部自由行 · 9月13日 — 9月27日 · 2026</p>
   <p style="margin-top:4px;font-size:0.78rem;">罗马 → 佛罗伦萨 → 威尼斯 → 多洛米蒂 → 米兰</p>
 </footer>
+
+<button class="back-to-top" id="backToTop" aria-label="返回顶部">⬆</button>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
@@ -1490,6 +1510,17 @@ section { padding: 2rem 0; }
       if (maps[id]) maps[id].invalidateSize();
     });
   });
+
+  // Back to top button
+  const backBtn = document.getElementById('backToTop');
+  if (backBtn) {
+    window.addEventListener('scroll', function() {
+      backBtn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    backBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 })();
 </script>
 
