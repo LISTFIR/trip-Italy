@@ -384,6 +384,22 @@ section { padding: 2rem 0; }
 .ticket-tag.yellow { background: #F8EDDA; color: #B8862A; }
 .ticket-tag.blue { background: #E8F0F5; color: #3D7A9E; }
 
+/* ===== Back to Top ===== */
+.back-to-top {
+  position: fixed; bottom: 32px; right: 32px; z-index: 200;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #3D7A9E; color: #fff; border: none;
+  font-size: 1.2rem; cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease; opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.back-to-top.visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { background: #2E5F7E; transform: translateY(-2px); }
+@media (max-width: 600px) {
+  .back-to-top { bottom: 20px; right: 20px; width: 38px; height: 38px; font-size: 1rem; }
+}
+
 /* ===== Footer ===== */
 .page-footer {
   text-align: center;
@@ -492,12 +508,14 @@ section { padding: 2rem 0; }
 </div>
 
 <!-- ===== City Navigation ===== -->
-<div class="city-nav">
+<div class="city-nav" style="justify-content: center;">
   <a href="#roma">🏛️ 罗马 + 梵蒂冈</a>
   <a href="#firenze">🏛️ 佛罗伦萨</a>
   <a href="#venezia">🏛️ 威尼斯</a>
   <a href="#dolomiti">🏛️ 多洛米蒂</a>
   <a href="#milano">🏛️ 米兰</a>
+</div>
+<div class="city-nav" style="justify-content: center;">
   <a href="#daily">📅 每日行程</a>
   <a href="#budget">💰 预算</a>
   <a href="#tips">💡 实用提示</a>
@@ -531,6 +549,12 @@ section { padding: 2rem 0; }
           <td><span class="sights-name">万神殿</span><span class="sights-notes">Pantheon</span></td>
           <td class="col-type">建筑</td>
           <td>两千年前混凝土穹顶，采光孔 9m，拉斐尔墓</td>
+        </tr>
+        <tr>
+          <td><span class="prio-badge prio-2">⭐⭐</span></td>
+          <td><span class="sights-name">圣依纳爵教堂</span><span class="sights-notes">Sant'Ignazio di Loyola</span></td>
+          <td class="col-type">教堂</td>
+          <td>波佐《圣依纳爵荣光》天顶画，trompe-l'œil 假穹顶，巴洛克幻视杰作，免费</td>
         </tr>
         <tr>
           <td><span class="prio-badge prio-3">⭐⭐⭐</span></td>
@@ -613,7 +637,7 @@ section { padding: 2rem 0; }
             <li><span class="highlight-item"><strong>罗马斗兽场</strong> (Colosseum) — <span class="urgent-dot">🔴 必须预约</span> 选早场，<strong>8.13 起售</strong></span></li>
             <li><strong>古罗马广场</strong> (Roman Forum) 与 <strong>帕拉蒂尼山</strong> (Palatine Hill) — 斗兽场联票</li>
             <li><strong>威尼斯广场</strong> (Piazza Venezia) — 免费外观</li>
-            <li>🌅 <strong>特雷维喷泉</strong> → <strong>万神殿</strong>（免费，穹顶采光孔） → <strong>西班牙广场</strong></li>
+            <li>🌅 <strong>特雷维喷泉</strong> → <strong>万神殿</strong>（免费，穹顶采光孔） → <strong>圣依纳爵教堂</strong>（trompe-l'œil 假穹顶壁画，免费） → <strong>西班牙广场</strong></li>
           </ul>
         </div>
       </div>
@@ -1153,8 +1177,7 @@ section { padding: 2rem 0; }
   </div>
 </section>
 
-<!-- ===== Overview Table ===== -->
-<section>
+<section id="daily">
   <span class="section-label">At a Glance</span>
   <h2>📋 每日行程概览</h2>
   <div class="table-wrap">
@@ -1330,6 +1353,9 @@ section { padding: 2rem 0; }
 
 </div><!-- /container -->
 
+<!-- ===== Back to Top ===== -->
+<button class="back-to-top" id="backToTop" aria-label="返回顶部">↑</button>
+
 <!-- ===== Footer ===== -->
 <footer class="page-footer">
   <p>意大利中北部自由行 · 9月13日 — 9月27日 · 2026</p>
@@ -1404,6 +1430,7 @@ section { padding: 2rem 0; }
         { lat: 41.8902, lng: 12.4922, name: '罗马斗兽场 Colosseum', day: 2 },
         { lat: 41.8925, lng: 12.4853, name: '古罗马广场 + 帕拉蒂尼山', day: 2 },
         { lat: 41.8986, lng: 12.4769, name: '万神殿 Pantheon', day: 2 },
+        { lat: 41.8990, lng: 12.4778, name: '圣依纳爵教堂 Sant\'Ignazio', day: 2 },
         { lat: 41.9009, lng: 12.4833, name: '特雷维喷泉 Trevi Fountain', day: 2 },
         { lat: 41.9065, lng: 12.4536, name: '梵蒂冈博物馆 Vatican Museums', day: 3 },
         { lat: 41.9022, lng: 12.4539, name: '圣彼得大教堂 St. Peter\'s', day: 3 },
@@ -1561,6 +1588,17 @@ section { padding: 2rem 0; }
       if (maps[id]) maps[id].invalidateSize();
     });
   });
+
+  // Back to top
+  const backBtn = document.getElementById('backToTop');
+  if (backBtn) {
+    window.addEventListener('scroll', function() {
+      backBtn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    backBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // Auto-init all city maps on load
   ['map-roma','map-firenze','map-venezia','map-dolomiti','map-milano'].forEach(function(id) {
